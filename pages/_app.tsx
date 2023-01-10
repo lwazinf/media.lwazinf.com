@@ -6,9 +6,9 @@ import Head from "next/head";
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <RecoilRoot>
-      <div className="flex min-h-screen flex-col items-center justify-center py-2">
+      <div className="flex min-h-screen flex-col items-center justify-center">
       <Head>
-        <title>Create Next App</title>
+        <title>LwaziNF :: Media</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Component {...pageProps} />
