@@ -2,6 +2,7 @@ import { RecoilRoot } from "recoil";
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import Header_ from "../components/Header_";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -11,6 +12,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>LwaziNF :: Media</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Header_/>
       <Component {...pageProps} />
       </div>
     </RecoilRoot>
