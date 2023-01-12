@@ -9,24 +9,9 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
-import {
-  collection,
-  query,
-  addDoc,
-  onSnapshot,
-  doc,
-  setDoc,
-  orderBy,
-  where,
-} from "firebase/firestore";
-import { db } from "../firebase";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signOut,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { useRecoilState } from "recoil";
+import { CurrentUser } from "./atoms/atoms";
+import { auth } from "../firebase";
 
 interface CenterStage_Props {}
 
@@ -49,6 +34,7 @@ interface LeftPlate_Props {}
 
 const LeftPlate_ = ({}: LeftPlate_Props) => {
   const userData_ = [0, 1, 2];
+  const [currentUser_, setCurrentUser_] = useRecoilState(CurrentUser)
   return (
     <div
       className={`flex relative overflow-hidden w-[350px] h-[400px] rounded-md flex-row items-center justify-start mx-2 bg-white shadow-md`}
@@ -80,6 +66,7 @@ const LeftPlate_ = ({}: LeftPlate_Props) => {
           return (
             <div
               className={`flex flex-col items-center justify-start w-full h-[78px] bg-white/50 rounded-md rounded-tl-none mb-5`}
+              key={obj}
             />
           );
         })}
@@ -298,6 +285,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                 }
               }}
               onClick={() => {
+                console.log(auth.currentUser)
                 if(Object.keys(accomObj_).includes(obj.name)){
                   setAccomObj_(
                     Object.entries(accomObj_)
@@ -318,6 +306,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                   }
                 }
               }}
+              key={obj.name}
             >
               <FontAwesomeIcon
                 icon={obj.icon}
@@ -326,280 +315,6 @@ const ContentArea_ = ({}: ContentArea_Props) => {
             </div>
           );
         })}
-        {/* 
-        <div
-          className={`${
-            hoverData_ == "Remove selection?"
-              ? "bg-blue-500/80 hover:bg-red-500/40 text-white hover:text-white opacity-100"
-              : Object.keys(accomObj_).includes("Acc") &&
-                hoverData_.split(" ").length > 1 &&
-                hoverData_ != acc
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white opacity-20"
-              : Object.keys(accomObj_).includes("Acc")
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_.split(" ").length > 1 && hoverData_ != acc
-              ? "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white opacity-50 pointer-events-none"
-              : acc_
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_ == acc
-              ? "bg-blue-500/40 text-white"
-              : "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white"
-          } transition-all duration-400 rounded-md cursor-pointer w-[80px] h-[80px] flex flex-row items-center justify-center`}
-          onMouseEnter={() => {
-            if (Object.keys(accomObj_).includes("Acc")) {
-              setHoverData_("Remove selection?");
-            } else {
-              if (hoverData_ != acc) {
-                setHoverData_("Accreditation");
-              }
-            }
-          }}
-          onMouseLeave={() => {
-            if (hoverData_ != acc) {
-              setHoverData_("");
-            }
-          }}
-          onClick={() => {
-            if (Object.keys(accomObj_).includes("Acc")) {
-              setAccomObj_(
-                Object.entries(accomObj_)
-                  .filter(([key, _]) => key !== "Acc")
-                  .reduce((res, [key, value]) => ({ ...res, [key]: value }), {})
-              );
-              setAcc_(!acc_);
-              setHoverData_("Accreditation");
-            } else {
-              if (hoverData_ != acc) {
-                setHoverData_(acc);
-              } else {
-                setHoverData_("Accreditation");
-              }
-            }
-            // setAcc_(!acc_);
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faCheckCircle}
-            className={`m-2 h-[25px] w-[25px] transition-all duration-200`}
-          />
-        </div>
-        <div
-          className={`${
-            hoverData_ == "Remove selection?" && currentElement_ == images
-              ? "bg-blue-500/80 hover:bg-red-500/40 text-white hover:text-white opacity-100"
-              : Object.keys(accomObj_).includes("Images") &&
-                hoverData_.split(" ").length > 1 &&
-                hoverData_ != images
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white opacity-20"
-              : Object.keys(accomObj_).includes("Images")
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_.split(" ").length > 1 && hoverData_ != images
-              ? "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white opacity-50 pointer-events-none"
-              : images_
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_ == images
-              ? "bg-blue-500/40 text-white"
-              : "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white"
-          } transition-all duration-400 rounded-md cursor-pointer w-[80px] h-[80px] flex flex-row items-center justify-center`}
-          onMouseEnter={() => {
-            if (Object.keys(accomObj_).includes("Images")) {
-              setHoverData_("Remove selection?");
-              setCurrentElement_(images);
-            } else {
-              if (hoverData_ != images) {
-                setHoverData_("Images");
-              }
-            }
-          }}
-          onMouseLeave={() => {
-            if (hoverData_ != images) {
-              setHoverData_("");
-            }
-          }}
-          onClick={() => {
-            if (Object.keys(accomObj_).includes("Images")) {
-              setAccomObj_(
-                Object.entries(accomObj_)
-                  .filter(([key, _]) => key !== "Images")
-                  .reduce((res, [key, value]) => ({ ...res, [key]: value }), {})
-              );
-              setImages_(!images_);
-              setHoverData_("Images");
-            } else {
-              if (hoverData_ != images) {
-                setHoverData_(images);
-              } else {
-                setHoverData_("Images");
-              }
-            }
-            // setImages_(!images_);
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faCamera}
-            className={`m-2 h-[25px] w-[25px] transition-all duration-200`}
-          />
-        </div>
-        <div
-          className={`${
-            Object.keys(accomObj_).includes("Map") &&
-            hoverData_.split(" ").length > 1 &&
-            hoverData_ != map
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white opacity-20"
-              : Object.keys(accomObj_).includes("Map")
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_.split(" ").length > 1 && hoverData_ != map
-              ? "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white opacity-50 pointer-events-none"
-              : map_
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_ == map
-              ? "bg-blue-500/40 text-white"
-              : "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white"
-          } transition-all duration-400 rounded-md cursor-pointer w-[80px] h-[80px] flex flex-row items-center justify-center`}
-          onMouseEnter={() => {
-            if (hoverData_ != map) {
-              setHoverData_("Location");
-            }
-          }}
-          onMouseLeave={() => {
-            if (hoverData_ != map) {
-              setHoverData_("");
-            }
-          }}
-          onClick={() => {
-            if (hoverData_ != map) {
-              setHoverData_(map);
-            } else {
-              setHoverData_("Location");
-            }
-            // setMap_(!map_);
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faMapMarkerAlt}
-            className={`m-2 h-[25px] w-[25px] transition-all duration-200`}
-          />
-        </div>
-        <div
-          className={`${
-            Object.keys(accomObj_).includes("Students") &&
-            hoverData_.split(" ").length > 1 &&
-            hoverData_ != students
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white opacity-20"
-              : Object.keys(accomObj_).includes("Students")
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_.split(" ").length > 1 && hoverData_ != students
-              ? "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white opacity-50 pointer-events-none"
-              : students_
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_ == students
-              ? "bg-blue-500/40 text-white"
-              : "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white"
-          } transition-all duration-400 rounded-md cursor-pointer w-[80px] h-[80px] flex flex-row items-center justify-center`}
-          onMouseEnter={() => {
-            if (hoverData_ != students) {
-              setHoverData_("Students");
-            }
-          }}
-          onMouseLeave={() => {
-            if (hoverData_ != students) {
-              setHoverData_("");
-            }
-          }}
-          onClick={() => {
-            if (hoverData_ != students) {
-              setHoverData_(students);
-            } else {
-              setHoverData_("Students");
-            }
-            // setStudents_(!students_);
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faPeopleGroup}
-            className={`m-2 h-[25px] w-[25px] transition-all duration-200`}
-          />
-        </div>
-        <div
-          className={`${
-            Object.keys(accomObj_).includes("Services") &&
-            hoverData_.split(" ").length > 1 &&
-            hoverData_ != services
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white opacity-20"
-              : Object.keys(accomObj_).includes("Services")
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_.split(" ").length > 1 && hoverData_ != services
-              ? "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white opacity-50 pointer-events-none"
-              : services_
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_ == services
-              ? "bg-blue-500/40 text-white"
-              : "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white"
-          } transition-all duration-400 rounded-md cursor-pointer w-[80px] h-[80px] flex flex-row items-center justify-center`}
-          onMouseEnter={() => {
-            if (hoverData_ != services) {
-              setHoverData_("Services");
-            }
-          }}
-          onMouseLeave={() => {
-            if (hoverData_ != services) {
-              setHoverData_("");
-            }
-          }}
-          onClick={() => {
-            if (hoverData_ != services) {
-              setHoverData_(services);
-            } else {
-              setHoverData_("Services");
-            }
-            // setServices_(!services_);
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faBolt}
-            className={`m-2 h-[25px] w-[25px] transition-all duration-200`}
-          />
-        </div>
-        <div
-          className={`${
-            Object.keys(accomObj_).includes("Price") &&
-            hoverData_.split(" ").length > 1 &&
-            hoverData_ != price
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white opacity-20"
-              : Object.keys(accomObj_).includes("Price")
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_.split(" ").length > 1 && hoverData_ != price
-              ? "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white opacity-50 pointer-events-none"
-              : price_
-              ? "bg-blue-500/80 hover:bg-blue-500/40 text-white hover:text-white"
-              : hoverData_ == price
-              ? "bg-blue-500/40 text-white"
-              : "bg-white hover:bg-blue-500/40 text-blue-300 hover:text-white"
-          } transition-all duration-400 rounded-md cursor-pointer w-[80px] h-[80px] flex flex-row items-center justify-center`}
-          onMouseEnter={() => {
-            if (hoverData_ != price) {
-              setHoverData_("Price");
-            }
-          }}
-          onMouseLeave={() => {
-            if (hoverData_ != price) {
-              setHoverData_("");
-            }
-          }}
-          onClick={() => {
-            if (hoverData_ != price) {
-              setHoverData_(price);
-            } else {
-              setHoverData_("Price");
-            }
-            // setPrice_(!price_);
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faCoins}
-            className={`m-2 h-[25px] w-[25px] transition-all duration-200`}
-          />
-        </div> */}
       </div>
     </div>
   );

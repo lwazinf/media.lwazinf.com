@@ -7,3 +7,17 @@
         background: #e8eaee;
       }
 }
+
+@layer components {
+  input,
+  textarea {
+    border: none;
+    resize: none;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+    background-color: white;
+  }
+}

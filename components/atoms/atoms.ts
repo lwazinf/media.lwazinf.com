@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-export const Navi = atom({
-    key: 'Navi',
-    default: '',
+export const CurrentUser = atom({
+    key: 'CurrentUser',
+    default: {},
   });
