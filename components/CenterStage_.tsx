@@ -36,6 +36,7 @@ interface LeftPlate_Props {}
 const LeftPlate_ = ({}: LeftPlate_Props) => {
   const userData_ = [0, 1, 2];
   const [currentUser_, setCurrentUser_] = useRecoilState(CurrentUser);
+  const [imageFiles_, setImageFiles_] = useRecoilState(ImageFiles);
   return (
     <div
       className={`flex relative overflow-hidden w-[350px] h-[400px] rounded-md flex-row items-center justify-start mx-2 bg-white shadow-md`}
@@ -81,7 +82,7 @@ const LeftPlate_ = ({}: LeftPlate_Props) => {
 interface RightPlate_Props {}
 
 const RightPlate_ = ({}: RightPlate_Props) => {
-  const [imageFiles_, setImageFiles_] = useRecoilState(ImageFiles)
+  const [imageFiles_, setImageFiles_] = useRecoilState(ImageFiles);
   return (
     <div
       className={`flex w-[450px] h-[400px] rounded-md flex-row items-center justify-center mx-2 bg-white shadow-md`}
@@ -89,15 +90,19 @@ const RightPlate_ = ({}: RightPlate_Props) => {
       <div
         className={`flex relative overflow-hidden w-full h-full rounded-md flex-row items-center justify-center transition-all duration-200 bg-black/0`}
       >
-        {
-          imageFiles_.length != 0 ?
-          <img className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-[800ms]`} src={imageFiles_[1]}/>
-          :
-          <div className={`absolute top-0 left-0 pointer-events-none`}/>
-      }
-        <div className={`absolute top-0 left-0 w-full h-full backdrop-blur-sm ${
-          imageFiles_.length == 0 ? 'bg-black/5' : 'bg-white/80'
-        }`}/>
+        {imageFiles_.length != 0 ? (
+          <img
+            className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-[800ms] opacity-20`}
+            src={imageFiles_[1]}
+          />
+        ) : (
+          <div className={`absolute top-0 left-0 pointer-events-none`} />
+        )}
+        <div
+          className={`absolute top-0 left-0 w-full h-full backdrop-blur-sm ${
+            imageFiles_.length == 0 ? "bg-black/5" : "bg-black/5"
+          }`}
+        />
         <ContentArea_ />
         <div
           className={`flex absolute right-0 bottom-0 w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
@@ -131,21 +136,24 @@ const ContentArea_ = ({}: ContentArea_Props) => {
   const [map_, setMap_] = useState(false);
   const [students_, setStudents_] = useState(false);
   const [services_, setServices_] = useState(false);
-  
+
   const acc = "Select your accreditation level..";
   const images = "Select 3 images of your student accom..";
   const price = "Provide a price per room..";
   const map = "Find your student accom on Google Maps..";
   const students = "How many rooms are available??";
   const services = "What services do you provide at your student accom?";
-  
+
   const [imageFiles_, setImageFiles_] = useRecoilState(ImageFiles);
 
   const onMutate = (e: any) => {
     if (e.target.files) {
       // setModal(true)
-      const tempData_: any = [e.target.files[0], URL.createObjectURL(e.target.files[0])]
-      setImageFiles_(tempData_)
+      const tempData_: any = [
+        e.target.files[0],
+        URL.createObjectURL(e.target.files[0]),
+      ];
+      setImageFiles_(tempData_);
       console.log(e.target.files[0]);
     } else {
       console.log("No Images Selected!");
@@ -289,34 +297,9 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                     <div
                       className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
                       onClick={() => {
-                        if (obj.data == acc) {
-                          setAccomObj_({ ...accomObj_, Acc: obj_ });
-                          setAcc_(!acc_);
-                          setHoverData_("");
-                          setCurrentElement_("");
-                        } else if (obj.data == images) {
-                          setAccomObj_({ ...accomObj_, Images: obj_ });
+                        if (obj.data == images) {
+                          setAccomObj_({ ...accomObj_, Images: imageFiles_ });
                           setImages_(!images);
-                          setHoverData_("");
-                          setCurrentElement_("");
-                        } else if (obj.data == map) {
-                          setAccomObj_({ ...accomObj_, Map: obj_ });
-                          setMap_(!map_);
-                          setHoverData_("");
-                          setCurrentElement_("");
-                        } else if (obj.data == students) {
-                          setAccomObj_({ ...accomObj_, Students: obj_ });
-                          setStudents_(!students_);
-                          setHoverData_("");
-                          setCurrentElement_("");
-                        } else if (obj.data == price) {
-                          setAccomObj_({ ...accomObj_, Price: obj_ });
-                          setPrice_(!price_);
-                          setHoverData_("");
-                          setCurrentElement_("");
-                        } else {
-                          setAccomObj_({ ...accomObj_, Services: obj_ });
-                          setServices_(!services_);
                           setHoverData_("");
                           setCurrentElement_("");
                         }
@@ -339,11 +322,6 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                     if (obj.data == acc) {
                       setAccomObj_({ ...accomObj_, Acc: obj_ });
                       setAcc_(!acc_);
-                      setHoverData_("");
-                      setCurrentElement_("");
-                    } else if (obj.data == images) {
-                      setAccomObj_({ ...accomObj_, Images: obj_ });
-                      setImages_(!images);
                       setHoverData_("");
                       setCurrentElement_("");
                     } else if (obj.data == map) {
@@ -385,7 +363,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
         {mockData_.map((obj) => {
           return (
             <div
-              className={`${
+              className={`backdrop-blur-sm ${
                 Object.keys(accomObj_).includes(obj.name) &&
                 currentElement_ != obj.name &&
                 hoverData_ == "Remove selection?" // Selected
@@ -418,8 +396,8 @@ const ContentArea_ = ({}: ContentArea_Props) => {
               }}
               onClick={() => {
                 console.log(imageFiles_);
-                if(imageFiles_.length != 0 && obj.name == 'Images'){
-                  setImageFiles_([])
+                if (imageFiles_.length != 0 && obj.name == "Images") {
+                  setImageFiles_([]);
                 }
                 if (Object.keys(accomObj_).includes(obj.name)) {
                   setAccomObj_(
