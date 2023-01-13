@@ -19,8 +19,6 @@ import { auth } from "../firebase";
 
 const Home: NextPage = () => {
   const [currentUser_, setCurrentUser_] = useRecoilState(CurrentUser);
-  // const [loading_, setLoading_] = useState(false);
-  // const navigate = useNavigate()
 
   useEffect(() => {
     if (auth.currentUser != null) {
