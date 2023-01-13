@@ -13,6 +13,7 @@ import { useRecoilState } from "recoil";
 import { CurrentUser, ImageFiles } from "./atoms/atoms";
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import PlacesAC_ from "./PlacesAC_";
 
 interface CenterStage_Props {}
 
@@ -315,6 +316,24 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                   </label>
                 );
               }
+              if (obj.optionType == "map") {
+                return (
+                    <div
+                      className={`flex w-full h-full flex-row items-center justify-center text-center transition-all duration-400`}
+                      // onClick={() => {
+                      //   if (obj.data == map) {
+                      //       setAccomObj_({ ...accomObj_, Map: obj_ });
+                      //       setMap_(!map_);
+                      //       setHoverData_("");
+                      //       setCurrentElement_("");
+                      //   }
+                      // }}
+                      key={obj_}
+                    >
+                      <PlacesAC_/>
+                    </div>
+                );
+              }
               return (
                 <div
                   className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
@@ -322,11 +341,6 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                     if (obj.data == acc) {
                       setAccomObj_({ ...accomObj_, Acc: obj_ });
                       setAcc_(!acc_);
-                      setHoverData_("");
-                      setCurrentElement_("");
-                    } else if (obj.data == map) {
-                      setAccomObj_({ ...accomObj_, Map: obj_ });
-                      setMap_(!map_);
                       setHoverData_("");
                       setCurrentElement_("");
                     } else if (obj.data == students) {

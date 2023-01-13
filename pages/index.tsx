@@ -22,10 +22,10 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (auth.currentUser != null) {
-      setCurrentUser_(auth.currentUser)
-      console.log('user found')
-    }else{
-      console.log('user not found')
+      setCurrentUser_(auth.currentUser);
+      console.log("user found");
+    } else {
+      console.log("user not found");
     }
   }, [currentUser_]);
 
@@ -33,11 +33,7 @@ const Home: NextPage = () => {
     <main
       className={`flex w-full h-screen flex-col items-center justify-center`}
     >
-      {auth.currentUser != null ? (
-        <CenterStage_ />
-      ) : (
-        <LoginPage_ />
-      )}
+      {auth.currentUser != null ? <CenterStage_ /> : <LoginPage_ />}
     </main>
   );
 };
