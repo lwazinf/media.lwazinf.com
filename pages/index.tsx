@@ -5,15 +5,6 @@ import CenterStage_ from "../components/CenterStage_";
 import LoginPage_ from "../components/LoginPage_";
 import { useRecoilState } from "recoil";
 import { CurrentUser } from "../components/atoms/atoms";
-
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signOut,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-} from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
 

@@ -7,10 +7,19 @@ import {
   faCamera,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRecoilState } from "recoil";
-import { CurrentUser, ImageFiles } from "./atoms/atoms";
+import {
+  CurrentUser,
+  ImageFiles,
+  AccValue,
+  ImagesValue,
+  PriceValue,
+  MapValue,
+  StudentsValue,
+  ServicesValue,
+} from "./atoms/atoms";
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import PlacesAC_ from "./PlacesAC_";
@@ -84,6 +93,14 @@ interface RightPlate_Props {}
 
 const RightPlate_ = ({}: RightPlate_Props) => {
   const [imageFiles_, setImageFiles_] = useRecoilState(ImageFiles);
+
+  const [acc__, setAcc__] = useRecoilState(AccValue);
+  const [images__, setImages__] = useRecoilState(ImagesValue);
+  const [price__, setPrice__] = useRecoilState(PriceValue);
+  const [map__, setMap__] = useRecoilState(MapValue);
+  const [students__, setStudents__] = useRecoilState(StudentsValue);
+  const [services__, setServices__] = useRecoilState(ServicesValue);
+
   return (
     <div
       className={`flex w-[450px] h-[400px] rounded-md flex-row items-center justify-center mx-2 bg-white shadow-md`}
@@ -108,7 +125,14 @@ const RightPlate_ = ({}: RightPlate_Props) => {
         <div
           className={`flex absolute right-0 bottom-0 w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
           onClick={() => {
-            console.log("Requesting Viewing..");
+            console.log({
+              acc: acc__,
+              images: images__,
+              price: price__,
+              map: map__,
+              students: students__,
+              services: services__,
+            });
           }}
         >
           <div
@@ -137,6 +161,13 @@ const ContentArea_ = ({}: ContentArea_Props) => {
   const [map_, setMap_] = useState(false);
   const [students_, setStudents_] = useState(false);
   const [services_, setServices_] = useState(false);
+
+  const [acc__, setAcc__] = useRecoilState(AccValue);
+  const [images__, setImages__] = useRecoilState(ImagesValue);
+  const [price__, setPrice__] = useRecoilState(PriceValue);
+  const [map__, setMap__] = useRecoilState(MapValue);
+  const [students__, setStudents__] = useRecoilState(StudentsValue);
+  const [services__, setServices__] = useRecoilState(ServicesValue);
 
   const acc = "Select your accreditation level..";
   const images = "Select 3 images of your student accom..";
@@ -243,7 +274,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
     {
       data: students,
       optionType: "input",
-      options: [],
+      options: [0],
       name: "Students",
       hoverData: "Students",
       permission: students_,
@@ -251,7 +282,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
     },
     {
       data: services,
-      optionType: "select",
+      optionType: "toggle",
       options: ["Internet", "Electricity", "Water"],
       name: "Services",
       hoverData: "Services",
@@ -261,13 +292,17 @@ const ContentArea_ = ({}: ContentArea_Props) => {
     {
       data: price,
       optionType: "input",
-      options: [],
+      options: [0],
       name: "Price",
       hoverData: "Pricing",
       permission: price_,
       icon: faCoins,
     },
   ];
+
+  useEffect(() => {
+    setImages__(imageFiles_)
+  }, [imageFiles_])
 
   return (
     <div
@@ -301,6 +336,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                         if (obj.data == images) {
                           setAccomObj_({ ...accomObj_, Images: imageFiles_ });
                           setImages_(!images);
+                          setImages__(imageFiles_)
                           setHoverData_("");
                           setCurrentElement_("");
                         }
@@ -318,20 +354,85 @@ const ContentArea_ = ({}: ContentArea_Props) => {
               }
               if (obj.optionType == "map") {
                 return (
+                  <div
+                    className={`flex w-full h-full flex-row items-center justify-center text-center transition-all duration-400`}
+                    // onClick={() => {
+                    //   if (obj.data == map) {
+                    //       setAccomObj_({ ...accomObj_, Map: obj_ });
+                    //       setMap_(!map_);
+                    //       setHoverData_("");
+                    //       setCurrentElement_("");
+                    //   }
+                    // }}
+                    key={obj_}
+                  >
+                    <PlacesAC_ />
+                  </div>
+                );
+              }
+              if (obj.optionType == "toggle") {
+                return (
+                  <div
+                    className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
+                    onClick={() => {
+                      if (obj.data == services) {
+                        setAccomObj_({ ...accomObj_, Services: obj_ });
+                        if(services__.includes(obj_)){
+                          setServices__(services__.filter(function(e: any) { return e !== obj_ }))
+                        }else{
+                          setServices__([...services__, obj_])
+                        }
+                        // setServices_(!services_);
+                        // setHoverData_("");
+                        // setCurrentElement_("");
+                      }
+                    }}
+                    key={obj_}
+                  >
                     <div
-                      className={`flex w-full h-full flex-row items-center justify-center text-center transition-all duration-400`}
-                      // onClick={() => {
-                      //   if (obj.data == map) {
-                      //       setAccomObj_({ ...accomObj_, Map: obj_ });
-                      //       setMap_(!map_);
-                      //       setHoverData_("");
-                      //       setCurrentElement_("");
-                      //   }
-                      // }}
-                      key={obj_}
+                      className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center bg-blue-500/50 hover:bg-white transition-all duration-400 hover:text-blue-500/70 text-white`}
                     >
-                      <PlacesAC_/>
+                      <p className={`font-medium text-[14px]`}>{obj_}</p>
                     </div>
+                  </div>
+                );
+              }
+              if (obj.optionType == "input") {
+                return (
+                  <div
+                    className={`flex rounded-md flex-row items-center justify-center text-center transition-all duration-400`}
+                    onClick={() => {
+                      if (obj.data == students) {
+                        // setAccomObj_({ ...accomObj_, Students: obj_ });
+                        // setStudents_(!students_);
+                        // setHoverData_("");
+                        // setCurrentElement_("");
+                      } else if (obj.data == price) {
+                        // setAccomObj_({ ...accomObj_, Price: obj_ });
+                        // setPrice_(!price_);
+                        // setHoverData_("");
+                        // setCurrentElement_("");
+                      }
+                    }}
+                    key={obj_}
+                  >
+                    <input
+                      type={`text`}
+                      className={``}
+                      placeholder={`${
+                        obj.data == students
+                          ? "No. of students.."
+                          : "Price of rent.."
+                      }`}
+                      onChange={(e) => {
+                        if (obj.data == students) {
+                          return setStudents__(e.target.value);
+                        } else {
+                          return setPrice__(e.target.value);
+                        }
+                      }}
+                    />
+                  </div>
                 );
               }
               return (
@@ -341,21 +442,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                     if (obj.data == acc) {
                       setAccomObj_({ ...accomObj_, Acc: obj_ });
                       setAcc_(!acc_);
-                      setHoverData_("");
-                      setCurrentElement_("");
-                    } else if (obj.data == students) {
-                      setAccomObj_({ ...accomObj_, Students: obj_ });
-                      setStudents_(!students_);
-                      setHoverData_("");
-                      setCurrentElement_("");
-                    } else if (obj.data == price) {
-                      setAccomObj_({ ...accomObj_, Price: obj_ });
-                      setPrice_(!price_);
-                      setHoverData_("");
-                      setCurrentElement_("");
-                    } else {
-                      setAccomObj_({ ...accomObj_, Services: obj_ });
-                      setServices_(!services_);
+                      setAcc__(obj_.toString())
                       setHoverData_("");
                       setCurrentElement_("");
                     }

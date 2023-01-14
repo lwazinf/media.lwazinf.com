@@ -12,7 +12,7 @@ interface PlacesAC_Props {}
 
 const PlacesAC_ = ({}: PlacesAC_Props) => {
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyDitBWjNRqs1UN7AR-3EFwqJFV761h56dM",
+    googleMapsApiKey: 'AIzaSyDitBWjNRqs1UN7AR-3EFwqJFV761h56dM',
     // process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     libraries: ["places"],
   });
@@ -30,7 +30,7 @@ const PlacesAC_ = ({}: PlacesAC_Props) => {
         onChange={(e) => {
           return setValue(e.target.value);
         }}
-        disabled={!ready}
+        // disabled={!ready}
         className={``}
         placeholder={`Search for an address..`}
       />
