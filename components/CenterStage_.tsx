@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import {
   CurrentUser,
+  CurrentElement,
   ImageFiles,
   AccValue,
   ImagesValue,
@@ -19,6 +20,7 @@ import {
   MapValue,
   StudentsValue,
   ServicesValue,
+  WhereAreWe,
 } from "./atoms/atoms";
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
@@ -101,6 +103,18 @@ const RightPlate_ = ({}: RightPlate_Props) => {
   const [students__, setStudents__] = useRecoilState(StudentsValue);
   const [services__, setServices__] = useRecoilState(ServicesValue);
 
+  const [whereAreWe_, setWhereAreWe_] = useRecoilState(WhereAreWe);
+  const [currentElement_, setCurrentElement_] = useRecoilState(CurrentElement);
+
+  const buttonMap_ = {
+    Price: "set",
+    Students: "set",
+    Services: "set",
+    Images: null,
+    Acc: null,
+    Map: "set",
+  };
+
   return (
     <div
       className={`flex w-[450px] h-[400px] rounded-md flex-row items-center justify-center mx-2 bg-white shadow-md`}
@@ -123,8 +137,16 @@ const RightPlate_ = ({}: RightPlate_Props) => {
         />
         <ContentArea_ />
         <div
-          className={`flex absolute right-0 bottom-0 w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
+          className={`${
+            currentElement_.length == 0
+              ? "opacity-0"
+              : buttonMap_[whereAreWe_] == null ||
+                (whereAreWe_ == "Services" && services__.length < 1)
+              ? "opacity-0"
+              : "opacity-100"
+          } flex absolute right-0 bottom-0 w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-blue-500/80 hover:bg-blue-500 transition-all duration-400 cursor-pointer m-1`}
           onClick={() => {
+            setCurrentElement_("");
             console.log({
               acc: acc__,
               images: images__,
@@ -136,9 +158,13 @@ const RightPlate_ = ({}: RightPlate_Props) => {
           }}
         >
           <div
-            className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center bg-blue-500/50 hover:bg-white transition-all duration-400 hover:text-blue-500/70 text-white`}
+            className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center transition-all duration-400 hover:text-white text-white/70`}
           >
-            <p className={`font-medium text-[14px]`}>Request</p>
+            {
+              <p className={`font-medium text-[14px]`}>
+                {buttonMap_[whereAreWe_]}
+              </p>
+            }
           </div>
         </div>
       </div>
@@ -152,7 +178,6 @@ interface ContentArea_Props {}
 
 const ContentArea_ = ({}: ContentArea_Props) => {
   const [hoverData_, setHoverData_] = useState("");
-  const [currentElement_, setCurrentElement_] = useState("");
   const [accomObj_, setAccomObj_] = useState({});
 
   const [acc_, setAcc_] = useState(false);
@@ -177,6 +202,8 @@ const ContentArea_ = ({}: ContentArea_Props) => {
   const services = "What services do you provide at your student accom?";
 
   const [imageFiles_, setImageFiles_] = useRecoilState(ImageFiles);
+  const [whereAreWe_, setWhereAreWe_] = useRecoilState(WhereAreWe);
+  const [currentElement_, setCurrentElement_] = useRecoilState(CurrentElement);
 
   const onMutate = (e: any) => {
     if (e.target.files) {
@@ -301,8 +328,8 @@ const ContentArea_ = ({}: ContentArea_Props) => {
   ];
 
   useEffect(() => {
-    setImages__(imageFiles_)
-  }, [imageFiles_])
+    setImages__(imageFiles_);
+  }, [imageFiles_]);
 
   return (
     <div
@@ -331,12 +358,12 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                 return (
                   <label htmlFor="images">
                     <div
-                      className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
+                      className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-blue-500/40 hover:bg-blue-500 transition-all duration-400 cursor-pointer m-1`}
                       onClick={() => {
                         if (obj.data == images) {
                           setAccomObj_({ ...accomObj_, Images: imageFiles_ });
                           setImages_(!images);
-                          setImages__(imageFiles_)
+                          setImages__(imageFiles_);
                           setHoverData_("");
                           setCurrentElement_("");
                         }
@@ -344,7 +371,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                       key={obj_}
                     >
                       <div
-                        className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center bg-blue-500/50 hover:bg-white transition-all duration-400 hover:text-blue-500/70 text-white`}
+                        className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center transition-all duration-400 text-white/70 hover:text-white`}
                       >
                         <p className={`font-medium text-[14px]`}>{obj_}</p>
                       </div>
@@ -373,14 +400,35 @@ const ContentArea_ = ({}: ContentArea_Props) => {
               if (obj.optionType == "toggle") {
                 return (
                   <div
-                    className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
+                    className={`${
+                      services__.includes(obj_)
+                        ? "bg-blue-500/80 hover:bg-red-500/40 text-white"
+                        : "hover:bg-blue-500/40 bg-white/50 hover:text-white text-blue-300"
+                    } flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center transition-all duration-400 cursor-pointer m-1`}
                     onClick={() => {
                       if (obj.data == services) {
                         setAccomObj_({ ...accomObj_, Services: obj_ });
-                        if(services__.includes(obj_)){
-                          setServices__(services__.filter(function(e: any) { return e !== obj_ }))
-                        }else{
-                          setServices__([...services__, obj_])
+                        if (services__.includes(obj_)) {
+                          setServices__(
+                            services__.filter(function (e: any) {
+                              return e !== obj_;
+                            })
+                          );
+                          if (services__.length == 1) {
+                            setAccomObj_(
+                              Object.entries(accomObj_)
+                                .filter(([key, _]) => key !== "Services")
+                                .reduce(
+                                  (res, [key, value]) => ({
+                                    ...res,
+                                    [key]: value,
+                                  }),
+                                  {}
+                                )
+                            );
+                          }
+                        } else {
+                          setServices__([...services__, obj_]);
                         }
                         // setServices_(!services_);
                         // setHoverData_("");
@@ -390,7 +438,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                     key={obj_}
                   >
                     <div
-                      className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center bg-blue-500/50 hover:bg-white transition-all duration-400 hover:text-blue-500/70 text-white`}
+                      className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center transition-all duration-400`}
                     >
                       <p className={`font-medium text-[14px]`}>{obj_}</p>
                     </div>
@@ -419,6 +467,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                     <input
                       type={`text`}
                       className={``}
+                      value={obj.data == students ? students__ : price__}
                       placeholder={`${
                         obj.data == students
                           ? "No. of students.."
@@ -437,12 +486,12 @@ const ContentArea_ = ({}: ContentArea_Props) => {
               }
               return (
                 <div
-                  className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-white hover:bg-blue-500/70 transition-all duration-400 cursor-pointer m-1`}
+                  className={`flex w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-blue-500/40 hover:bg-blue-500 hover:text-white text-blue-300 transition-all duration-400 cursor-pointer m-1`}
                   onClick={() => {
                     if (obj.data == acc) {
                       setAccomObj_({ ...accomObj_, Acc: obj_ });
                       setAcc_(!acc_);
-                      setAcc__(obj_.toString())
+                      setAcc__(obj_.toString());
                       setHoverData_("");
                       setCurrentElement_("");
                     }
@@ -450,7 +499,7 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                   key={obj_}
                 >
                   <div
-                    className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center bg-blue-500/50 hover:bg-white transition-all duration-400 hover:text-blue-500/70 text-white`}
+                    className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center transition-all duration-400 text-white/70 hover:text-white`}
                   >
                     <p className={`font-medium text-[14px]`}>{obj_}</p>
                   </div>
@@ -465,9 +514,15 @@ const ContentArea_ = ({}: ContentArea_Props) => {
           return (
             <div
               className={`backdrop-blur-sm ${
-                Object.keys(accomObj_).includes(obj.name) &&
-                currentElement_ != obj.name &&
-                hoverData_ == "Remove selection?" // Selected
+                obj.name == "Service" && services__.length != 0
+                  ? "bg-blue-500/80 hover:bg-red-500/40 text-white"
+                  : obj.name == "Price" && price__.length != 0
+                  ? "bg-blue-500/80 hover:bg-red-500/40 text-white"
+                  : obj.name == "Students" && students__.length != 0
+                  ? "bg-blue-500/80 hover:bg-red-500/40 text-white"
+                  : Object.keys(accomObj_).includes(obj.name) &&
+                    currentElement_ != obj.name &&
+                    hoverData_ == "Remove selection?" // Selected
                   ? "bg-blue-500/40 text-white"
                   : Object.keys(accomObj_).includes(obj.name) // Selected
                   ? "bg-blue-500/80 hover:bg-red-500/40 text-white"
@@ -496,27 +551,76 @@ const ContentArea_ = ({}: ContentArea_Props) => {
                 }
               }}
               onClick={() => {
-                console.log(imageFiles_);
-                if (imageFiles_.length != 0 && obj.name == "Images") {
-                  setImageFiles_([]);
-                }
-                if (Object.keys(accomObj_).includes(obj.name)) {
-                  setAccomObj_(
-                    Object.entries(accomObj_)
-                      .filter(([key, _]) => key !== obj.name)
-                      .reduce(
-                        (res, [key, value]) => ({ ...res, [key]: value }),
-                        {}
-                      )
-                  );
-                  setHoverData_(obj.hoverData);
-                } else {
-                  if (currentElement_ == obj.name) {
+                if (obj.name == currentElement_ || currentElement_ == "") {
+                  if (imageFiles_.length != 0 && obj.name == "Images") {
+                    setImageFiles_([]);
+                  }
+                  if (obj.name == "Acc") {
+                    setAcc_(!acc_);
+                    setAcc__('')
+                  }
+                  if (obj.name == "Students") {
+                    setAccomObj_(
+                      Object.entries(accomObj_)
+                        .filter(([key, _]) => key !== "Students")
+                        .reduce(
+                          (res, [key, value]) => ({ ...res, [key]: value }),
+                          {}
+                        )
+                    );
+                    setStudents__("");
                     setCurrentElement_("");
+                    setWhereAreWe_("");
+                  }
+                  if (obj.name == "Price") {
+                    setAccomObj_(
+                      Object.entries(accomObj_)
+                        .filter(([key, _]) => key !== "Price")
+                        .reduce(
+                          (res, [key, value]) => ({ ...res, [key]: value }),
+                          {}
+                        )
+                    );
+                    setPrice__("");
+                    setCurrentElement_("");
+                    setWhereAreWe_("");
+                  }
+                  if (obj.name == "Services" && services__.length != 0) {
+                    setServices__([]);
+                    setAccomObj_(
+                      Object.entries(accomObj_)
+                        .filter(([key, _]) => key !== "Services")
+                        .reduce(
+                          (res, [key, value]) => ({ ...res, [key]: value }),
+                          {}
+                        )
+                    );
+                    setCurrentElement_("");
+                    setWhereAreWe_("");
+                    setHoverData_(obj.hoverData);
+                  }
+                  if (Object.keys(accomObj_).includes(obj.name)) {
+                    setAccomObj_(
+                      Object.entries(accomObj_)
+                        .filter(([key, _]) => key !== obj.name)
+                        .reduce(
+                          (res, [key, value]) => ({ ...res, [key]: value }),
+                          {}
+                        )
+                    );
+                    setCurrentElement_("");
+                    setWhereAreWe_("");
                     setHoverData_(obj.hoverData);
                   } else {
-                    setCurrentElement_(obj.name);
-                    setHoverData_(obj.data);
+                    if (currentElement_ == obj.name) {
+                      setCurrentElement_("");
+                      setWhereAreWe_("");
+                      setHoverData_(obj.hoverData);
+                    } else {
+                      setCurrentElement_(obj.name);
+                      setWhereAreWe_(obj.name);
+                      setHoverData_(obj.data);
+                    }
                   }
                 }
               }}

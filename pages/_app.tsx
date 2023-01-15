@@ -15,6 +15,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Header_/>
       <Component {...pageProps} />
       </div>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDitBWjNRqs1UN7AR-3EFwqJFV761h56dM&libraries=places&callback=initMap"async></script>
     </RecoilRoot>
   );
 }

@@ -5,6 +5,11 @@ export const CurrentUser = atom({
     default: {},
   });
 
+  export const CurrentElement = atom({
+    key: 'CurrentElement',
+    default: '',
+  });
+
   export const ImageFiles = atom({
     key: 'ImageFiles',
     default: [],
@@ -38,4 +43,9 @@ export const CurrentUser = atom({
   export const ServicesValue = atom<any>({
     key: 'ServicesValue',
     default: [],
+  });
+
+  export const WhereAreWe = atom<any>({
+    key: 'WhereAreWe',
+    default: '',
   });
