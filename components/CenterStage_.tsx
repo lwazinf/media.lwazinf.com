@@ -25,6 +25,7 @@ import {
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import PlacesAC_ from "./PlacesAC_";
+import { getGeocode } from "use-places-autocomplete";
 
 interface CenterStage_Props {}
 
@@ -106,15 +107,6 @@ const RightPlate_ = ({}: RightPlate_Props) => {
   const [whereAreWe_, setWhereAreWe_] = useRecoilState(WhereAreWe);
   const [currentElement_, setCurrentElement_] = useRecoilState(CurrentElement);
 
-  const buttonMap_ = {
-    Price: "set",
-    Students: "set",
-    Services: "set",
-    Images: null,
-    Acc: null,
-    Map: "set",
-  };
-
   return (
     <div
       className={`flex w-[450px] h-[400px] rounded-md flex-row items-center justify-center mx-2 bg-white shadow-md`}
@@ -136,37 +128,6 @@ const RightPlate_ = ({}: RightPlate_Props) => {
           }`}
         />
         <ContentArea_ />
-        <div
-          className={`${
-            currentElement_.length == 0
-              ? "opacity-0"
-              : buttonMap_[whereAreWe_] == null ||
-                (whereAreWe_ == "Services" && services__.length < 1)
-              ? "opacity-0"
-              : "opacity-100"
-          } flex absolute right-0 bottom-0 w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-blue-500/80 hover:bg-blue-500 transition-all duration-400 cursor-pointer m-1`}
-          onClick={() => {
-            setCurrentElement_("");
-            console.log({
-              acc: acc__,
-              images: images__,
-              price: price__,
-              map: map__,
-              students: students__,
-              services: services__,
-            });
-          }}
-        >
-          <div
-            className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center transition-all duration-400 hover:text-white text-white/70`}
-          >
-            {
-              <p className={`font-medium text-[14px]`}>
-                {buttonMap_[whereAreWe_]}
-              </p>
-            }
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -204,6 +165,15 @@ const ContentArea_ = ({}: ContentArea_Props) => {
   const [imageFiles_, setImageFiles_] = useRecoilState(ImageFiles);
   const [whereAreWe_, setWhereAreWe_] = useRecoilState(WhereAreWe);
   const [currentElement_, setCurrentElement_] = useRecoilState(CurrentElement);
+
+  const buttonMap_ = {
+    Price: "set",
+    Students: "set",
+    Services: "set",
+    Images: null,
+    Acc: null,
+    Map: "set",
+  };
 
   const onMutate = (e: any) => {
     if (e.target.files) {
@@ -335,6 +305,38 @@ const ContentArea_ = ({}: ContentArea_Props) => {
     <div
       className={`flex flex-col justify-center items-center w-full h-full relative overflow-hidden`}
     >
+      <div
+          className={`${
+            currentElement_.length == 0
+              ? "opacity-0 pointer-events-none cursor-default"
+              : buttonMap_[whereAreWe_] == null ||
+                (whereAreWe_ == "Services" && services__.length < 1)
+              ? "opacity-0 pointer-events-none cursor-default"
+              : "opacity-100"
+          } flex absolute right-0 bottom-0 w-[81px] h-[31px] rounded-md flex-row items-center justify-center text-center bg-blue-500/80 hover:bg-blue-500 transition-all duration-400 cursor-pointer m-1`}
+          onClick={async () => {
+            setCurrentElement_("");
+            setHoverData_('')
+            console.log({
+              acc: acc__,
+              images: images__,
+              price: price__,
+              map: map__,
+              students: students__,
+              services: services__,
+            });
+          }}
+        >
+          <div
+            className={`flex w-[80px] h-[30px] rounded-md flex-row items-center justify-center text-center transition-all duration-400 hover:text-white text-white/70`}
+          >
+            {
+              <p className={`font-medium text-[14px]`}>
+                {buttonMap_[whereAreWe_]}
+              </p>
+            }
+          </div>
+        </div>
       <div
         className={`flex flex-col justify-center items-center w-full h-[30px] absolute top-[80px] left-0 text-[15px] font-medium text-blue-400 transition-all duration-500 ${
           hoverData_.length > 0 ? "opacity-100" : "opacity-0"

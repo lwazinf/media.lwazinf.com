@@ -6,16 +6,18 @@ import {
   ComboboxPopover,
 } from "@reach/combobox";
 import { useLoadScript } from "@react-google-maps/api";
-import usePlacesAutocomplete from "use-places-autocomplete";
+import { useRecoilState } from "recoil";
+import usePlacesAutocomplete, { getGeocode, getLatLng } from "use-places-autocomplete";
+import { MapValue } from "./atoms/atoms";
 
 interface PlacesAC_Props {}
 
 const PlacesAC_ = ({}: PlacesAC_Props) => {
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyDitBWjNRqs1UN7AR-3EFwqJFV761h56dM',
-    // process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    libraries: ["places"],
-  });
+  // const { isLoaded } = useLoadScript({
+  //   googleMapsApiKey: 'AIzaSyDitBWjNRqs1UN7AR-3EFwqJFV761h56dM',
+  //   // process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  //   libraries: ["places"],
+  // });
   const {
     ready,
     value,
@@ -23,12 +25,14 @@ const PlacesAC_ = ({}: PlacesAC_Props) => {
     suggestions: { status, data },
     clearSuggestions,
   } = usePlacesAutocomplete();
+  const [map__, setMap__] = useRecoilState(MapValue);
   return (
     <Combobox>
       <ComboboxInput
         value={value}
         onChange={(e) => {
-          return setValue(e.target.value);
+          setValue(e.target.value);
+          setMap__(e.target.value)
         }}
         // disabled={!ready}
         className={``}
